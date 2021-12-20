@@ -1,4 +1,5 @@
-from tkinter import Tk
+from tkinter import PhotoImage
+from tkinter import Tk, IntVar
 from tkinter import Frame
 from tkinter import Label
 from tkinter import Entry
@@ -17,6 +18,13 @@ from os.path import basename
 from aes import AES
 from hashlib import md5
 from os import urandom
+import os
+from PIL import Image
+from PIL import ImageTk
+import numpy as np
+import cv2
+import cv2.data as data
+import pickle
 
 
 class App(Tk):
@@ -32,7 +40,7 @@ class App(Tk):
         self.cursor = self.db.cursor(buffered=True)
 
         Tk.__init__(self)
-        self.geometry('900x600')
+        self.geometry('1000x700')
         self.resizable(0, 0)
         self.title('Project Name')
         self.configure(bg=self.grey)
@@ -40,6 +48,7 @@ class App(Tk):
         self.file_name = ''
         self.master_text = ''
         self.is_encrypted = False
+        self.account = Account(1, 'tom@gmail.com', 'tom', 'burke')
         self.switch_frame(LoginPage)
         self.file_in_db = False
 
@@ -124,7 +133,7 @@ class LoginPage(Frame):
 
             # successfully logged in
 
-            self.master.account = Account(email, result[0], result[1])
+            self.master.account = Account(id, email, result[0], result[1])
             self.master.switch_frame(MainPage)
 
         except Exception as a:
@@ -302,7 +311,7 @@ class MainPage(Frame):
 
         encryption_status_label = Label(self, text='Encryption Status:', font=('Arial', 11), bg=grey)
         encryption_status_label.grid(column=0, row=3, pady=10)
-        encryption_status = Label(self, textvariable=self.encrypted, font=('Arial', 11), bg=grey, fg='red')
+        encryption_status = Label(self, textvariable=self.encrypted, font=('Arial', 11), bg=grey, fg='#ba0000')
         encryption_status.grid(column=1, row=3)
         encrypt_file_button = Button(self, textvariable=self.encrypt_decrypt, command=self.encrypt_or_decrypt,
                                      font=('Arial', 10), bg=grey)
@@ -454,11 +463,12 @@ class EncryptionPage(Frame):
         try:
             if self.master.file_in_db:
                 # update record
-                query = 'UPDATE TABLE EncryptionData SET isEncrypted = "%d" WHERE user_id = "%d" AND file_name = "%s";' % (1, id, self.master.file_path)
+                query = 'UPDATE TABLE EncryptionData SET isEncrypted = "%d" WHERE user_id = "%d" AND file_name = "%s";' % (
+                    1, id, self.master.file_path)
             else:
                 # insert record
                 query = 'INSERT INTO EncryptionData (user_id, file_name, isEncrypted, iv) VALUES ("%d", "%s", "%d", "%s");' % \
-                                        (id, self.master.file_name, 1, bytes(iv).hex())
+                        (id, self.master.file_name, 1, bytes(iv).hex())
             self.master.cursor.execute(query)
             self.master.db.commit()
 
@@ -490,7 +500,8 @@ class EncryptionPage(Frame):
             id = self.master.cursor.fetchone()[0]
 
             print(self.master.file_path)
-            query2 = 'UPDATE EncryptionData SET isEncrypted = "%d" WHERE user_id = "%d" AND file_name = "%s";' % (0, id, self.master.file_path)
+            query2 = 'UPDATE EncryptionData SET isEncrypted = "%d" WHERE user_id = "%d" AND file_name = "%s";' % (
+                0, id, self.master.file_path)
             print(query2)
             self.master.cursor.execute(query2)
             self.master.db.commit()
@@ -520,10 +531,156 @@ class SettingsPage(Frame):
     def __init__(self, master):
         grey = master.grey
         Frame.__init__(self, master, bg=grey)
+        self.face_rec_enabled = StringVar(value='Disabled')
+        self.change_face_rec_status = StringVar(value='Enable')
+
+        title_label = Label(self, text='Project Name', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
+        title_label.grid(column=0, row=0, pady=40, ipadx=10, ipady=5, columnspan=3)
+
+        encryption_title = Label(self, text='Account Settings', font=('Arial', 14), bg=grey)
+        encryption_title.grid(column=0, row=1, columnspan=3, pady=(0, 40))
+
+        query = 'SELECT face_rec_enabled FROM Logins WHERE id = "%s";'
+        self.master.cursor.execute(query)
+        result = self.master.cursor.fetchone()
+
+        if result is not None:
+            if result[0] == 1:
+                self.face_rec_enabled.set('Enabled')
+                self.change_face_rec_status.set('Disable')
+
+        facerec_label = Label(self, text='Face Recognition: ', font=('Arial', 11), bg=grey)
+        facerec_label.grid(column=0, row=2)
+        self.facerec_status_label = Label(self, textvariable=self.face_rec_enabled, font=('Arial', 11), bg=grey,
+                                          fg='#ba0000')
+        self.facerec_status_label.grid(column=1, row=2, padx=20)
+
+        facerec_change_button = Button(self, command=lambda status=self.face_rec_enabled: self.config_face_rec(status),
+                                       textvariable=self.change_face_rec_status, font=('Arial', 10), bg=grey)
+        facerec_change_button.grid(column=2, row=2, padx=20)
+
+    def config_face_rec(self, status):
+        if status.get() == 'Enabled':
+            self.disable_face_rec()
+        else:
+            self.enable_face_rec()
+
+    def enable_face_rec(self):
+        result = messagebox.askokcancel('Enable Face Recognition',
+                                        'Face Recognition will be used to identify you when you attempt to sign in.\n\n'
+                                        'To enable this feature, you must upload 10 images of your face. \n\n')
+        if result:
+            self.master.switch_frame(EnableFaceRecognitionPage)
+            return
+
+        # self.face_rec_enabled.set('Enabled')
+        # self.facerec_status_label.configure(fg='green')
+        # self.change_face_rec_status.set('Disable')
+
+    def disable_face_rec(self):
+        self.face_rec_enabled.set('Disabled')
+        self.facerec_status_label.configure(fg='#ba0000')
+        self.change_face_rec_status.set('Enable')
+
+
+class EnableFaceRecognitionPage(Frame):
+    def __init__(self, master):
+        grey = master.grey
+        Frame.__init__(self, master, bg=grey)
+        self.num_of_files = IntVar(self, 0)
+        self.num_of_uploaded_files_str = StringVar(self, f'Number of Uploaded Files: {self.num_of_files.get()}')
+        self.uploaded_files = []
+        self.labels = []
+
+        title_label = Label(self, text='Project Name', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
+        title_label.grid(column=0, row=0, pady=40, ipadx=10, ipady=5, columnspan=6)
+
+        instructions = 'Face Recognition will be used to identify you when you attempt to sign in.\n\n'
+        instructions += 'To enable this feature, you must upload 10 images of your face so we know what you look like.'
+        instructions = StringVar(self, instructions)
+
+        instructions_label = Label(self, textvariable=instructions, font=('Arial', 11), bg=grey)
+        instructions_label.grid(column=0, row=1, columnspan=6)
+
+        self.upload_images_button = Button(self, text='Upload Images', font=('Arial', 11), bg='#A9D7FF',
+                                           command=self.upload_images)
+        self.upload_images_button.grid(column=0, row=2, pady=20, columnspan=5)
+
+        cancel_button = Button(self, text='Cancel', command=self.cancel, font=('Arial', 11), bg='#D11A2A')
+        cancel_button.grid(column=1, row=2, columnspan=5, pady=20)
+
+        uploaded_files_label = Label(self, textvariable=self.num_of_uploaded_files_str, font=('Arial', 11), bg=grey)
+        uploaded_files_label.grid(column=0, row=4, columnspan=6)
+
+        self.train_button = Button(self, text='Confirm', command=self.train, font=('Arial', 11), bg=grey)
+        self.train_button.grid(column=0, row=5, pady=20, columnspan=2)
+        self.train_button.grid_remove()
+
+        # img = ImageTk.PhotoImage(Image.open('D:/Downloads/unknown.png').resize((200, 200), Image.ANTIALIAS))
+        # Label(self, bg=grey, image=img)
+        # self.img1.photo=img
+        # self.img1.grid(column=0, row=6)
+
+    def upload_images(self):
+
+        filetypes = (
+            ('Images', '*.png'),
+            ('All files', '*.*')
+        )
+        self.uploaded_files = []
+        self.num_of_files.set(0)
+
+        files = filedialog.askopenfilenames(filetypes=filetypes)
+
+        self.train_button.grid_remove()
+        for label in self.labels:
+            label.destroy()
+
+        if files is None:
+            return
+
+        for i in range(len(files)):
+            if files[i] not in self.uploaded_files:
+
+                if len(self.uploaded_files) == 10:
+                    self.train_button.grid()
+                else:
+                    self.num_of_files.set(self.num_of_files.get() + 1)
+                    self.num_of_uploaded_files_str.set(f'Number of Uploaded Files: {self.num_of_files.get()}')
+                    self.uploaded_files.append(files[i])
+
+        row = 6
+        column = 0
+        for i in range(len(self.uploaded_files)):
+            if i != 0 and i % 5 == 0:
+                row += 1
+                column = 0
+
+            img = ImageTk.PhotoImage(Image.open(self.uploaded_files[i]).resize((100, 100), Image.ANTIALIAS))
+            img_label = Label(self, bg='white', image=img)
+            img_label.photo = img
+            img_label.grid(column=column, row=row, pady=5, padx=5)
+            column += 1
+            self.labels.append(img_label)
+
+            if i == 9:
+                return
+
+    def train(self):
+        self.upload_images_button.configure(state=DISABLED)
+        self.train_button.configure(state=DISABLED)
+        dir_name = self.master.account.first_name.lower() + '-' + self.master.account.last_name.lower()
+
+        if not os.path.isdir(dir_name):
+            os.mkdir(dir_name)
+
+    def cancel(self):
+        self.master.switch_frame(SettingsPage)
 
 
 class Account:
-    def __init__(self, email, first_name, last_name):
+    def __init__(self, id, email, first_name, last_name):
+        self.id = id
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
