@@ -1,4 +1,4 @@
-from app import App
+from windows.app import App
 
 def main():
     root = App()
