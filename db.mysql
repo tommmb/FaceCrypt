@@ -2,15 +2,16 @@ CREATE DATABASE IF NOT EXISTS project;
 use project;
 
 CREATE TABLE IF NOT EXISTS Logins(
-    id INT NOT NULL AUTO_INCREMENT,
+	id INT NOT NULL AUTO_INCREMENT,
     email VARCHAR(40) NOT NULL,
     password VARCHAR(60) NOT NULL,
     salt VARCHAR(60) NOT NULL,
+    face_rec_enabled TINYINT NOT NULL DEFAULT 0,
     PRIMARY KEY(id)
 );
 
 CREATE TABLE IF NOT EXISTS Users(
-    user_id INT NOT NULL,
+	user_id INT NOT NULL,
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
     access_level VARCHAR(6) NOT NULL DEFAULT 0,
@@ -18,10 +19,9 @@ CREATE TABLE IF NOT EXISTS Users(
 );	
 
 CREATE TABLE IF NOT EXISTS EncryptionData(
-    user_id INT NOT NULL, 
-    file_name VARCHAR(20) NOT NULL, 
+	user_id INT NOT NULL, 
+	file_name VARCHAR(20) NOT NULL, 
     isEncrypted TINYINT NOT NULL DEFAULT 0,
-    iv VARCHAR(64) NOT NULL,
+	iv VARCHAR(64) NOT NULL,
     FOREIGN KEY(user_id) REFERENCES Logins(id)
 ); 
-
