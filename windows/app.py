@@ -24,9 +24,7 @@ class App(tk.Tk):
         self.file_name = ''
         self.master_text = ''
         self.is_encrypted = False
-        # self.account = Account(1, 'tom@gmail.com', 'tom', 'burke')
         self.switch_frame(login_page.LoginPage)
-        # self.switch_frame(enable_face_recognition_page.EnableFaceRecognitionPage)
         self.file_in_db = False
 
     def switch_frame(self, frame_class):
@@ -35,3 +33,4 @@ class App(tk.Tk):
             self._frame.destroy()
         self._frame = new_frame
         self._frame.pack()
+        
