@@ -57,23 +57,24 @@ class AES:
         """ copies initial 4 words from key . 44 words / 11 round keys"""
         i = 1
         while len(key_columns) < 44:
-            word = list(key_columns[-1])  # copy previous wor
+            word = list(key_columns[-1])  # copy previous word
             if len(key_columns) % 4 == 0:
                 word.append(word.pop(0))  # circular left shift 1 byte
                 for x in range(4):
                     word[x] = s_box[word[x]]  # s_box substitution
 
-                word[0] ^= r_con[i]
+                word[0] ^= r_con[i]  # XOR with round constant
                 i += 1
 
-            word2 = key_columns[-4]
+            word2 = key_columns[-4]  # word 4 positions before
 
             for x in range(4):
-                word[x] ^= word2[x]
+                word[x] ^= word2[x]   # XOR each word with the word 4 positions prior
 
-            key_columns.append(word)
+            key_columns.append(word)  # append word to key columns array
 
-        key_columns = [key_columns[i: i + 4] for i in range(0, 44, 4)]
+        # convert round key array to 2D array of size 11x4
+        key_columns = [key_columns[i: i + 4] for i in range(0, 44, 4)] 
 
         return key_columns
 
