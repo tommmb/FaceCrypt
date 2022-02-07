@@ -26,7 +26,7 @@ class App(tk.Tk):
         tk.Tk.__init__(self)
         self.geometry('1000x700')
         self.resizable(0, 0)
-        self.title('Project Name')
+        self.title('FaceCrypt')
         self.configure(bg=self.grey)
         self._frame = None
         self.file_name = ''
