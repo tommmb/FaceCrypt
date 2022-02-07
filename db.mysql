@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS Users(
 CREATE TABLE IF NOT EXISTS EncryptionData(
     user_id INT NOT NULL, 
     file_name VARCHAR(255) NOT NULL, 
-    isEncrypted TINYINT NOT NULL DEFAULT 0,
     iv VARCHAR(64) NOT NULL,
     FOREIGN KEY(user_id) REFERENCES Logins(id)
 ); 
