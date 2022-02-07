@@ -23,7 +23,7 @@ class FaceRecognitionLogin(tk.Frame):
             og_labels = pickle.load(f)
             self.labels = {value: key for key, value in og_labels.items()}
 
-        title_label = tk.Label(self, text='Project Name', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
+        title_label = tk.Label(self, text='FaceCrypt', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
         title_label.grid(column=0, row=0, pady=20, ipadx=10, ipady=5)
 
         self.display_video = tk.Label(self)
