@@ -12,7 +12,7 @@ class MainPage(tk.Frame):
         tk.Frame.__init__(self, master, bg=grey)
         self.email = tk.StringVar(value=self.master.account.email)
 
-        # title_label = tk.Label(self, text='Project Name', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
+        # title_label = tk.Label(self, text='FaceCrypt', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
         # title_label.grid(column=0, row=1, pady=80, ipadx=10, ipady=5, columnspan=5, rowspan=2)
 
         settings = tk.Button(self, text='Account Settings', command=self.open_settings)
