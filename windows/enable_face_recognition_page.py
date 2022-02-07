@@ -19,7 +19,7 @@ class EnableFaceRecognitionPage(tk.Frame):
         self.original_images = []
         self.labels = []
 
-        title_label = tk.Label(self, text='Project Name', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
+        title_label = tk.Label(self, text='FaceCrypt', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
         title_label.grid(column=0, row=0, pady=40, ipadx=10, ipady=5, columnspan=6)
 
         instructions = 'Face Recognition will be used to identify you when you attempt to sign in.\n\n'
