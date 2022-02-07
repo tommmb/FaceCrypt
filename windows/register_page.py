@@ -11,7 +11,7 @@ class RegisterPage(tk.Frame):
         grey = master.grey
         tk.Frame.__init__(self, master, bg=grey)
 
-        title_label = tk.Label(self, text='Project Name', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
+        title_label = tk.Label(self, text='FaceCrypt', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
         title_label.grid(column=0, row=0, pady=80, ipadx=10, ipady=5, columnspan=4)
 
         email = tk.StringVar()
