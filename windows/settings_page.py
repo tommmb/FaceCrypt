@@ -17,7 +17,7 @@ class SettingsPage(tk.Frame):
             self.face_rec_enabled.set(value='Enabled')
             self.change_face_rec_status.set(value='Disable')
 
-        title_label = tk.Label(self, text='Project Name', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
+        title_label = tk.Label(self, text='FaceCrypt', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
         title_label.grid(column=0, row=0, pady=40, ipadx=10, ipady=5, columnspan=3)
 
         encryption_title = tk.Label(self, text='Account Settings', font=('Arial', 14), bg=grey)
