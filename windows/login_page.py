@@ -12,7 +12,7 @@ class LoginPage(tk.Frame):
         grey = master.grey
         tk.Frame.__init__(self, master, bg=grey)
 
-        title_label = tk.Label(self, text='Project Name', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
+        title_label = tk.Label(self, text='FaceCrypt', font=('Arial', 32), bg=grey, borderwidth=1, relief='solid')
         title_label.grid(column=1, row=0, pady=80, ipadx=10, ipady=5)
 
         email = tk.StringVar()
