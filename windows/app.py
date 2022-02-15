@@ -13,13 +13,22 @@ class App(tk.Tk):
         #    database='project'
         #)
         
-        self.db = connector.connect(
-            host = 'project-db.cozci0btgeyl.eu-west-2.rds.amazonaws.com',
-            user = 'root',
-            passwd = 'password',
-            port = 3306,
-            database = 'project'
-        )
+#         self.db = connector.connect(
+#             host = 'project-db.cozci0btgeyl.eu-west-2.rds.amazonaws.com',
+#             user = 'root',
+#             passwd = 'password',
+#             port = 3306,
+#             database = 'project'
+#         )
+        
+           self.db = connector.connect(
+               host="db.cozci0btgeyl.eu-west-2.rds.amazonaws.com",
+               user="root",
+               passwd="school_project1",
+               port='3306',
+               database='project'
+            )
+        
 
         self.cursor = self.db.cursor(buffered=True)
 
