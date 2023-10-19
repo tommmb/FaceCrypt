@@ -6,27 +6,13 @@ import windows.login_page as login_page
 class App(tk.Tk):
     def __init__(self):
         self.grey = '#CDCDCD'
-        #self.db = connector.connect(
-        #    host="localhost",
-        #    user="root",
-        #    passwd="root",
-        #    database='project'
-        #)
-        
-#         self.db = connector.connect(
-#             host = 'project-db.cozci0btgeyl.eu-west-2.rds.amazonaws.com',
-#             user = 'root',
-#             passwd = 'password',
-#             port = 3306,
-#             database = 'project'
-#         )
         
            self.db = connector.connect(
-               host="db.cozci0btgeyl.eu-west-2.rds.amazonaws.com",
-               user="root",
-               passwd="school_project1",
+               host="",
+               user="",
+               passwd="",
                port='3306',
-               database='project'
+               database=''
             )
         
 
